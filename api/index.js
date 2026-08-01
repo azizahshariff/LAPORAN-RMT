@@ -1,42 +1,50 @@
 export default async function handler(req, res) {
-  try {
-    // ID Google Sheet anda
-    const sheetId = '19fh2btp6AVkJbzMajeFq6e9FFFBMxv0brGiUb6oezMo';
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+  const sheetId = '19fh2btp6AVkJbzMajeFq6e9FFFBMxv0brGiUb6oezMo';
+  const logoUrl = 'https://drive.google.com/uc?export=view&id=1NBktdfRwbUSXCB63K3FpPu7Env2CBR7h';
 
+  try {
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
     const response = await fetch(csvUrl);
     const csvText = await response.text();
 
-    // Pecahkan data CSV kepada baris
     const lines = csvText.split('\n');
     let tableRows = '';
+    let totalRecords = 0;
 
-    // Mula membaca dari baris ke-2 (abaikan tajuk di baris pertama)
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Pecahkan kolum mengikut tanda koma (CSV)
       const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : '-';
+
+      const tahun = clean(cols[0]);
+      const tarikh = clean(cols[1]);
+      const sesi = clean(cols[2]);
+      const hari = clean(cols[3]);
+      const masa = clean(cols[4]);
+      const guru = clean(cols[5]);
+      const menu = clean(cols[6]);
+      const buah = clean(cols[7]);
       
-      const tahun = cols[0] ? cols[0].replace(/"/g, '') : '-';
-      const tarikh = cols[1] ? cols[1].replace(/"/g, '') : '-';
-      const sesi = cols[2] ? cols[2].replace(/"/g, '') : '-';
-      const guru = cols[3] ? cols[3].replace(/"/g, '') : '-';
-      
-      // Ambil pautan PDF dari kolum terakhir
-      const lastCol = cols[cols.length - 1] ? cols[cols.length - 1].replace(/"/g, '').trim() : '';
-      const pdfUrl = lastCol.startsWith('http') ? lastCol : '';
+      const pdfUrl = clean(cols[cols.length - 1]);
+      const hasPdf = pdfUrl.startsWith('http');
+
+      totalRecords++;
 
       tableRows += `
         <tr>
-          <td style="text-align:center;">${i}</td>
-          <td><strong>${tahun}</strong></td>
+          <td style="text-align:center; font-weight:bold; color:#4a5568;">${totalRecords}</td>
+          <td><span class="badge-tahun">${tahun}</span></td>
+          <td><span class="badge-sesi">${sesi}</span></td>
           <td>${tarikh}</td>
-          <td>${sesi}</td>
-          <td>${guru}</td>
+          <td>${hari}</td>
+          <td>${masa}</td>
+          <td><strong>${guru}</strong></td>
+          <td>${menu}</td>
+          <td>${buah}</td>
           <td style="text-align:center;">
-            ${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-pdf">Buka / Muat Turun PDF</a>` : '<span style="color:#e53e3e; font-size:9.5pt;">Belum Dijana</span>'}
+            ${hasPdf ? `<a href="${pdfUrl}" target="_blank" class="btn-pdf">Buka PDF</a>` : '<span style="color:#e53e3e; font-size:9pt; font-weight:bold;">Belum Dijana</span>'}
           </td>
         </tr>
       `;
@@ -47,46 +55,100 @@ export default async function handler(req, res) {
       <html lang="ms">
       <head>
           <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Dashboard RMT SK Simpang Rengam</title>
           <style>
-              body { font-family: Arial, sans-serif; background-color: #f7fafc; margin: 0; padding: 20px; color: #2d3748; }
-              .container { max-width: 1100px; margin: 0 auto; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-              .header { text-align: center; border-bottom: 3px double #1a365d; padding-bottom: 15px; margin-bottom: 20px; }
-              .header h1 { color: #1a365d; margin: 5px 0; font-size: 20px; text-transform: uppercase; }
-              .header h2 { color: #2b6cb0; margin: 0; font-size: 14px; }
-              .actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-              .btn-sheet { background: #38a169; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 10pt; }
-              .btn-sheet:hover { background: #2f855a; }
-              .search-box { padding: 10px; width: 300px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; }
-              .table-wrapper { border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; }
-              table { width: 100%; border-collapse: collapse; }
-              th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 10pt; }
-              th { background-color: #edf2f7; color: #2d3748; text-transform: uppercase; }
-              tr:nth-child(even) { background-color: #f8fafc; }
-              .btn-pdf { background: #3182ce; color: white; padding: 6px 14px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 9.5pt; display: inline-block; }
-              .btn-pdf:hover { background: #2b6cb0; }
+              :root {
+                  --primary: #1e3a8a;
+                  --secondary: #3b82f6;
+                  --success: #10b981;
+                  --background: #f8fafc;
+                  --surface: #ffffff;
+                  --text: #1e293b;
+                  --border: #e2e8f0;
+              }
+              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--background); margin: 0; padding: 20px; color: var(--text); }
+              .container { max-width: 1350px; margin: 0 auto; background: var(--surface); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px double var(--primary); padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
+              .school-info { display: flex; align-items: center; gap: 20px; }
+              .school-logo { width: 75px; height: 75px; object-fit: contain; }
+              .title-group h1 { color: var(--primary); margin: 0; font-size: 22px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+              .title-group h2 { color: var(--secondary); margin: 5px 0 0; font-size: 14px; font-weight: 600; text-transform: uppercase; }
+              .actions-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+              .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+              .btn { background: var(--primary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 10pt; border: none; cursor: pointer; transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; gap: 8px; }
+              .btn:hover { background: #1e40af; transform: translateY(-1px); }
+              .btn-success { background: var(--success); }
+              .btn-success:hover { background: #059669; }
+              .search-box { padding: 10px 15px; width: 320px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+              .search-box:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+              .table-container { border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; background: white; }
+              table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+              th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 9.5pt; }
+              th { background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+              tr:hover { background-color: #f8fafc; }
+              .badge-tahun { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 9pt; }
+              .badge-sesi { background: #fef3c7; color: #b45309; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 9pt; }
+              .btn-pdf { background: var(--secondary); color: white; padding: 6px 12px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 9pt; display: inline-block; transition: background 0.2s; }
+              .btn-pdf:hover { background: #2563eb; }
+              .stats-bar { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+              .stat-card { background: #f1f5f9; padding: 15px 20px; border-radius: 10px; border-left: 4px solid var(--primary); min-width: 200px; }
+              .stat-card h4 { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; }
+              .stat-card p { margin: 5px 0 0; font-size: 20px; font-weight: 700; color: var(--primary); }
           </style>
       </head>
       <body>
       <div class="container">
         <div class="header">
-          <h2>SEKOLAH KEBANGSAAN SIMPANG RENGAM</h2>
-          <h1>DASHBOARD LAPORAN RMT</h1>
+          <div class="school-info">
+            <img src="${logoUrl}" alt="Logo SK Simpang Rengam" class="school-logo" onerror="this.style.display='none'">
+            <div class="title-group">
+              <h2>SEKOLAH KEBANGSAAN SIMPANG RENGAM, JOHOR</h2>
+              <h1>DASHBOARD RASMI LAPORAN RMT (2023 - 2025)</h1>
+            </div>
+          </div>
+          <div>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v3.0 Aktif</span>
+          </div>
         </div>
-        <div class="actions">
-          <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/19fh2btp6AVkJbzMajeFq6e9FFFBMxv0brGiUb6oezMo/edit" target="_blank">Buka Google Sheet RMT</a>
-          <input type="text" id="searchInput" class="search-box" placeholder="Cari rekod..." onkeyup="searchTable()">
+
+        <div class="stats-bar">
+          <div class="stat-card">
+            <h4>Jumlah Rekod</h4>
+            <p>${totalRecords} Laporan</p>
+          </div>
+          <div class="stat-card" style="border-left-color: var(--success);">
+            <h4>Status Pelayan</h4>
+            <p style="color: var(--success);">Online (Vercel)</p>
+          </div>
         </div>
-        <div class="table-wrapper">
+
+        <div class="actions-bar">
+          <div class="btn-group">
+            <a class="btn" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">
+              📁 Buka Google Sheet Asal
+            </a>
+            <a class="btn btn-success" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">
+              ➕ Tambah Rekod Baru di Sheet
+            </a>
+          </div>
+          <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh, sesi..." onkeyup="searchTable()">
+        </div>
+
+        <div class="table-container">
           <table id="reportTable">
             <thead>
               <tr>
                 <th>Bil</th>
                 <th>Tahun</th>
-                <th>Tarikh</th>
                 <th>Sesi</th>
+                <th>Tarikh</th>
+                <th>Hari</th>
+                <th>Masa</th>
                 <th>Guru Bertugas</th>
-                <th style="text-align:center;">Laporan PDF</th>
+                <th>Menu Makanan</th>
+                <th>Buah-buahan</th>
+                <th style="text-align:center;">Pautan PDF</th>
               </tr>
             </thead>
             <tbody id="tableBody">
@@ -95,6 +157,7 @@ export default async function handler(req, res) {
           </table>
         </div>
       </div>
+
       <script>
         function searchTable() {
           let input = document.getElementById("searchInput").value.toLowerCase();
@@ -112,6 +175,6 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(html);
   } catch (error) {
-    res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Vercel:</h3><pre>${error.message}</pre>`);
+    res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Pelayan Vercel:</h3><pre>${error.message}</pre>`);
   }
 }
