@@ -1,24 +1,46 @@
 export default async function handler(req, res) {
   try {
-    // Tarik data secara terus dan selamat dari Web App Apps Script MOE anda
-    const response = await fetch("https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbxu99a7W7vWlGRJssPtdnRqmfGQ26eDjRinGaePHUjcVL3DzbG9-DAKdgDsL5ZkHum_HA/exec");
-    const dataList = await response.json();
+    // ID Google Sheet anda
+    const sheetId = '19fh2btp6AVkJbzMajeFq6e9FFFBMxv0brGiUb6oezMo';
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
 
+    const response = await fetch(csvUrl);
+    const csvText = await response.text();
+
+    // Pecahkan data CSV kepada baris
+    const lines = csvText.split('\n');
     let tableRows = '';
-    dataList.forEach((item) => {
+
+    // Mula membaca dari baris ke-2 (abaikan tajuk di baris pertama)
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      // Pecahkan kolum mengikut tanda koma (CSV)
+      const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      
+      const tahun = cols[0] ? cols[0].replace(/"/g, '') : '-';
+      const tarikh = cols[1] ? cols[1].replace(/"/g, '') : '-';
+      const sesi = cols[2] ? cols[2].replace(/"/g, '') : '-';
+      const guru = cols[3] ? cols[3].replace(/"/g, '') : '-';
+      
+      // Ambil pautan PDF dari kolum terakhir
+      const lastCol = cols[cols.length - 1] ? cols[cols.length - 1].replace(/"/g, '').trim() : '';
+      const pdfUrl = lastCol.startsWith('http') ? lastCol : '';
+
       tableRows += `
         <tr>
-          <td style="text-align:center;">${item.bil}</td>
-          <td><strong>${item.tahun}</strong></td>
-          <td>${item.tarikh}</td>
-          <td>${item.sesi}</td>
-          <td>${item.guru}</td>
+          <td style="text-align:center;">${i}</td>
+          <td><strong>${tahun}</strong></td>
+          <td>${tarikh}</td>
+          <td>${sesi}</td>
+          <td>${guru}</td>
           <td style="text-align:center;">
-            ${item.pdfUrl ? `<a href="${item.pdfUrl}" target="_blank" class="btn-pdf">Buka PDF</a>` : '<span style="color:#e53e3e; font-size:9.5pt;">Belum Dijana</span>'}
+            ${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-pdf">Buka / Muat Turun PDF</a>` : '<span style="color:#e53e3e; font-size:9.5pt;">Belum Dijana</span>'}
           </td>
         </tr>
       `;
-    });
+    }
 
     const html = `
       <!DOCTYPE html>
@@ -90,6 +112,6 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(html);
   } catch (error) {
-    res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Sambungan Vercel:</h3><pre>${error.message}</pre>`);
+    res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Vercel:</h3><pre>${error.message}</pre>`);
   }
 }
