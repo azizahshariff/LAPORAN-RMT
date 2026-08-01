@@ -1,6 +1,9 @@
 {
-  "name": "laporan-rmt",
+  "name": "laporan-rmt-sk-simpang-rengam",
   "version": "1.0.0",
+  "description": "Dashboard Laporan RMT SK Simpang Rengam",
   "main": "api/index.js",
-  "dependencies": {}
+  "engines": {
+    "node": "18.x"
+  }
 }
