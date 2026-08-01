@@ -1,42 +1,20 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-const { JWT } = require('google-auth-library');
-
 export default async function handler(req, res) {
   try {
-    const serviceAccountAuth = new JWT({
-      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : '',
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
-    await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0];
-    const rows = await sheet.getRows();
+    // Tarik data secara terus dan selamat dari Web App Apps Script MOE anda
+    const response = await fetch("https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbxu99a7W7vWlGRJssPtdnRqmfGQ26eDjRinGaePHUjcVL3DzbG9-DAKdgDsL5ZkHum_HA/exec");
+    const dataList = await response.json();
 
     let tableRows = '';
-    rows.forEach((row, index) => {
-      const rowNum = index + 1;
-      const rowData = row._rawData || [];
-      
-      const tahun = rowData[0] || '-';
-      const tarikh = rowData[1] || '-';
-      const sesi = rowData[2] || '-';
-      const guru = rowData[3] || '-';
-      
-      const pdfUrl = rowData[rowData.length - 1] && rowData[rowData.length - 1].toString().startsWith('http') 
-                     ? rowData[rowData.length - 1] 
-                     : '';
-
+    dataList.forEach((item) => {
       tableRows += `
         <tr>
-          <td style="text-align:center;">${rowNum}</td>
-          <td><strong>${tahun}</strong></td>
-          <td>${tarikh}</td>
-          <td>${sesi}</td>
-          <td>${guru}</td>
+          <td style="text-align:center;">${item.bil}</td>
+          <td><strong>${item.tahun}</strong></td>
+          <td>${item.tarikh}</td>
+          <td>${item.sesi}</td>
+          <td>${item.guru}</td>
           <td style="text-align:center;">
-            ${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-pdf">Buka / Muat Turun PDF</a>` : '<span style="color:#e53e3e; font-size:9.5pt;">Belum Dijana</span>'}
+            ${item.pdfUrl ? `<a href="${item.pdfUrl}" target="_blank" class="btn-pdf">Buka PDF</a>` : '<span style="color:#e53e3e; font-size:9.5pt;">Belum Dijana</span>'}
           </td>
         </tr>
       `;
@@ -112,6 +90,6 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(html);
   } catch (error) {
-    res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Sambungan Vercel ke Google Sheet:</h3><pre>${error.message}</pre>`);
+    res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Sambungan Vercel:</h3><pre>${error.message}</pre>`);
   }
 }
