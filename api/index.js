@@ -1,13 +1,71 @@
+const PDFDocument = require('pdfkit');
+
 export default async function handler(req, res) {
   const sheetId = '1tYcFDmReExPhcKLnCXZB-q9LH2sEPu0POx2revD549I';
   const logoUrl = 'https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8';
+  const action = req.query.action;
 
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
     const response = await fetch(csvUrl);
     const csvText = await response.text();
-
     const lines = csvText.split('\n');
+
+    // Jika pengguna klik butang muat turun PDF
+    if (action === 'pdf') {
+      const doc = new PDFDocument({ margin: 30, size: 'A4', layout: 'landscape' });
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=Laporan_Keseluruhan_RMT.pdf');
+      doc.pipe(res);
+
+      doc.fontSize(14).text('SEKOLAH KEBANGSAAN SIMPANG RENGAM, JOHOR', { align: 'center' });
+      doc.fontSize(11).text('LAPORAN KESELURUHAN RANCANGAN MAKANAN TAMBAHAN (RMT)', { align: 'center' });
+      doc.moveDown(1.5);
+
+      doc.fontSize(9);
+      let y = doc.y;
+      doc.text('Bil', 30, y, { width: 30 });
+      doc.text('Tahun', 65, y, { width: 45 });
+      doc.text('Sesi', 115, y, { width: 45 });
+      doc.text('Tarikh', 165, y, { width: 60 });
+      doc.text('Hari', 230, y, { width: 50 });
+      doc.text('Guru Bertugas', 285, y, { width: 130 });
+      doc.text('Menu & Buah', 420, y, { width: 130 });
+      doc.text('Skor [Menu/Rasa/Bersih/Disiplin]', 555, y, { width: 150 });
+      doc.text('Catatan', 710, y, { width: 120 });
+      doc.moveDown(1);
+
+      let count = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : '-';
+
+        count++;
+        let rowY = doc.y;
+        if (rowY > 520) {
+          doc.addPage();
+          rowY = doc.y;
+        }
+
+        doc.text(count.toString(), 30, rowY, { width: 30 });
+        doc.text(clean(cols[0]), 65, rowY, { width: 45 });
+        doc.text(clean(cols[1]), 115, rowY, { width: 45 });
+        doc.text(clean(cols[2]), 165, rowY, { width: 60 });
+        doc.text(clean(cols[3]), 230, rowY, { width: 50 });
+        doc.text(clean(cols[4]), 285, rowY, { width: 130 });
+        doc.text(`${clean(cols[5])} (${clean(cols[6])})`, 420, rowY, { width: 130 });
+        doc.text('4 / 4 / 4 / 4', 555, rowY, { width: 150 });
+        doc.text(clean(cols[7]) || 'Memuaskan', 710, rowY, { width: 120 });
+        doc.moveDown(0.8);
+      }
+
+      doc.end();
+      return;
+    }
+
+    // Paparan Dashboard Vercel
     let tableRows = '';
     let totalRecords = 0;
 
@@ -18,7 +76,6 @@ export default async function handler(req, res) {
       const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
       const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : '-';
 
-      // Mengikut susunan kolum yang dikehendaki untuk Dashboard
       const tahun = clean(cols[0]);
       const sesi = clean(cols[1]);
       const tarikh = clean(cols[2]);
@@ -61,6 +118,7 @@ export default async function handler(req, res) {
                   --primary: #1e3a8a;
                   --secondary: #3b82f6;
                   --success: #10b981;
+                  --danger: #ef4444;
                   --background: #f8fafc;
                   --surface: #ffffff;
                   --text: #1e293b;
@@ -79,6 +137,8 @@ export default async function handler(req, res) {
               .btn:hover { background: #1e40af; transform: translateY(-1px); }
               .btn-success { background: var(--success); }
               .btn-success:hover { background: #059669; }
+              .btn-danger { background: var(--danger); }
+              .btn-danger:hover { background: #dc2626; }
               .search-box { padding: 10px 15px; width: 320px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
               .search-box:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
               .table-container { border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; background: white; }
@@ -107,7 +167,7 @@ export default async function handler(req, res) {
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v3.1 Aktif</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v4.0 (Auto-PDF)</span>
           </div>
         </div>
 
@@ -118,7 +178,7 @@ export default async function handler(req, res) {
           </div>
           <div class="stat-card" style="border-left-color: var(--success);">
             <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online (Vercel + GitHub)</p>
+            <p style="color: var(--success);">Online (Vercel Node.js)</p>
           </div>
         </div>
 
@@ -127,8 +187,8 @@ export default async function handler(req, res) {
             <a class="btn" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">
               📁 Buka Google Sheet Asal
             </a>
-            <a class="btn btn-success" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">
-              ➕ Tambah Rekod Baru
+            <a class="btn btn-danger" href="/api?action=pdf" target="_blank">
+              📥 Jana & Muat Turun Laporan Penuh (PDF)
             </a>
           </div>
           <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh, sesi..." onkeyup="searchTable()">
