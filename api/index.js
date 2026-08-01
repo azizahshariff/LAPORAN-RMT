@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
-  const sheetId = '19fh2btp6AVkJbzMajeFq6e9FFFBMxv0brGiUb6oezMo';
-  const logoUrl = 'https://drive.google.com/uc?export=view&id=1NBktdfRwbUSXCB63K3FpPu7Env2CBR7h';
+  const sheetId = '1tYcFDmReExPhcKLnCXZB-q9LH2sEPu0POx2revD549I';
+  const logoUrl = 'https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8';
 
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
@@ -18,14 +18,14 @@ export default async function handler(req, res) {
       const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
       const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : '-';
 
+      // Mengikut susunan kolum yang dikehendaki untuk Dashboard
       const tahun = clean(cols[0]);
-      const tarikh = clean(cols[1]);
-      const sesi = clean(cols[2]);
-      const hari = clean(cols[3]);
-      const masa = clean(cols[4]);
-      const guru = clean(cols[5]);
-      const menu = clean(cols[6]);
-      const buah = clean(cols[7]);
+      const sesi = clean(cols[1]);
+      const tarikh = clean(cols[2]);
+      const masa = clean(cols[3]);
+      const guru = clean(cols[4]);
+      const menu = clean(cols[5]);
+      const buah = clean(cols[6]);
       
       const pdfUrl = clean(cols[cols.length - 1]);
       const hasPdf = pdfUrl.startsWith('http');
@@ -38,7 +38,6 @@ export default async function handler(req, res) {
           <td><span class="badge-tahun">${tahun}</span></td>
           <td><span class="badge-sesi">${sesi}</span></td>
           <td>${tarikh}</td>
-          <td>${hari}</td>
           <td>${masa}</td>
           <td><strong>${guru}</strong></td>
           <td>${menu}</td>
@@ -108,7 +107,7 @@ export default async function handler(req, res) {
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v3.0 Aktif</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v3.1 Aktif</span>
           </div>
         </div>
 
@@ -143,7 +142,6 @@ export default async function handler(req, res) {
                 <th>Tahun</th>
                 <th>Sesi</th>
                 <th>Tarikh</th>
-                <th>Hari</th>
                 <th>Masa</th>
                 <th>Guru Bertugas</th>
                 <th>Menu Makanan</th>
