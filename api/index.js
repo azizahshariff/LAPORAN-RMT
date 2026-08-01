@@ -119,7 +119,7 @@ export default async function handler(req, res) {
           </div>
           <div class="stat-card" style="border-left-color: var(--success);">
             <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online (Vercel)</p>
+            <p style="color: var(--success);">Online (Vercel + GitHub)</p>
           </div>
         </div>
 
@@ -129,7 +129,7 @@ export default async function handler(req, res) {
               📁 Buka Google Sheet Asal
             </a>
             <a class="btn btn-success" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">
-              ➕ Tambah Rekod Baru di Sheet
+              ➕ Tambah Rekod Baru
             </a>
           </div>
           <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh, sesi..." onkeyup="searchTable()">
