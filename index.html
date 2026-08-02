@@ -57,7 +57,7 @@
 <div class="container">
   <div class="header">
     <div class="school-info">
-      <!-- Logo sekolah dari fail logo_sksr.png di GitHub -->
+      <!-- Logo sekolah dari fail logo_sksr.png -->
       <img src="./logo_sksr.png" alt="Logo SK Simpang Rengam" class="school-logo" onerror="this.src='https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8'">
       <div class="title-group">
         <h2>SEKOLAH KEBANGSAAN SIMPANG RENGAM, JOHOR</h2>
@@ -174,12 +174,11 @@
 
       <div class="form-row">
         <div class="form-group"><label>Tahun:</label><input type="text" id="tahun" value="2026" required></div>
-        <div class="form-group"><label>Pautan PDF (URL):</label><input type="text" id="pdf" placeholder="https://..."></div>
       </div>
 
       <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
         <button type="button" class="btn btn-danger" onclick="closeModal()">Batal</button>
-        <button type="submit" class="btn btn-success" id="submitBtn">Hantar Laporan</button>
+        <button type="submit" class="btn btn-success" id="submitBtn">Hantar Laporan & Jana PDF</button>
       </div>
     </form>
   </div>
@@ -189,8 +188,8 @@
   const sheetId = '1jkn6EwdZQRO3dodipb_RlWrMx5kjl579GIr7WeNS5M0';
   const jsonUrl = `https://opensheet.elk.sh/${sheetId}/Sheet1`;
   
-  // URL Web App Google Apps Script anda yang sebenar
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbw1r7moja_-shi_a85ilMExZu7bD4HVifniV5lTmU9Paewbwz44rFehqzO4wHegkva4/exec';
+  // URL Apps Script anda yang dikemas kini
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbwUQDLkOrT-IllfuL0kNkZ9PqLcBiDUzl0olxKHAtQ7sq3hRilBmVtteCAUMywZLgjk/exec';
 
   function openModal() { document.getElementById('reportModal').style.display = 'flex'; }
   function closeModal() { document.getElementById('reportModal').style.display = 'none'; }
@@ -249,7 +248,7 @@
   async function submitForm(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
-    btn.textContent = "Menghantar...";
+    btn.textContent = "Menghantar & Menjana PDF...";
     btn.disabled = true;
 
     const formData = {
@@ -265,8 +264,7 @@
       skorKebersihan: document.getElementById('skorKebersihan').value,
       skorDisiplin: document.getElementById('skorDisiplin').value,
       catatan: document.getElementById('catatan').value,
-      tahun: document.getElementById('tahun').value,
-      pdf: document.getElementById('pdf').value
+      tahun: document.getElementById('tahun').value
     };
 
     try {
@@ -277,14 +275,14 @@
         body: JSON.stringify(formData)
       });
 
-      alert("Laporan penuh berjaya dihantar dan dimasukkan ke dalam Google Sheet!");
+      alert("Laporan berjaya dihantar dan fail PDF rasmi telah dijana secara automatik di Google Drive!");
       closeModal();
       document.getElementById('rmtForm').reset();
       loadSheetData();
     } catch (error) {
       alert("Ralat menghantar data: " + error.message);
     } finally {
-      btn.textContent = "Hantar Laporan";
+      btn.textContent = "Hantar Laporan & Jana PDF";
       btn.disabled = false;
     }
   }
