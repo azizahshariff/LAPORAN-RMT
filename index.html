@@ -26,6 +26,8 @@
         .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
         .btn { background: var(--primary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 10pt; border: none; cursor: pointer; transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; gap: 8px; }
         .btn:hover { background: #1e40af; transform: translateY(-1px); }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #059669; }
         .btn-danger { background: var(--danger); }
         .btn-danger:hover { background: #dc2626; }
         .search-box { padding: 10px 15px; width: 320px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
@@ -41,13 +43,22 @@
         .stat-card { background: #f1f5f9; padding: 15px 20px; border-radius: 10px; border-left: 4px solid var(--primary); min-width: 200px; }
         .stat-card h4 { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; }
         .stat-card p { margin: 5px 0 0; font-size: 20px; font-weight: 700; color: var(--primary); }
+        
+        /* Modal Borang Maya */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; overflow-y: auto; padding: 20px; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 650px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 9.5pt; color: var(--text); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; font-size: 10pt; font-family: inherit; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <div class="school-info">
-      <img src="https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8" alt="Logo" class="school-logo" onerror="this.style.display='none'">
+      <!-- Logo sekolah dari fail logo_sksr.png di GitHub -->
+      <img src="./logo_sksr.png" alt="Logo SK Simpang Rengam" class="school-logo" onerror="this.src='https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8'">
       <div class="title-group">
         <h2>SEKOLAH KEBANGSAAN SIMPANG RENGAM, JOHOR</h2>
         <h1>DASHBOARD RASMI LAPORAN RMT (2023 - 2025)</h1>
@@ -67,8 +78,9 @@
 
   <div class="actions-bar">
     <div class="btn-group">
+      <button class="btn btn-success" onclick="openModal()">➕ Isi Laporan Baharu</button>
       <a class="btn" href="https://docs.google.com/spreadsheets/d/1jkn6EwdZQRO3dodipb_RlWrMx5kjl579GIr7WeNS5M0/edit" target="_blank">📁 Buka Google Sheet Asal</a>
-      <button class="btn btn-danger" onclick="window.print()">🖨️ Cetak / Muat Turun Penuh</button>
+      <button class="btn btn-danger" onclick="window.print()">🖨️ Cetak Penuh</button>
     </div>
     <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh..." onkeyup="searchTable()">
   </div>
@@ -89,10 +101,99 @@
   </div>
 </div>
 
+<!-- Modal Borang Maya Lengkap -->
+<div id="reportModal" class="modal">
+  <div class="modal-content">
+    <h3 style="margin-top:0; color:var(--primary);">Borang Rekod Harian RMT</h3>
+    <form id="rmtForm" onsubmit="submitForm(event)">
+      <div class="form-row">
+        <div class="form-group"><label>Tarikh:</label><input type="text" id="tarikh" required placeholder="Contoh: 8/2/2026"></div>
+        <div class="form-group"><label>Hari:</label><input type="text" id="hari" required placeholder="Contoh: ISNIN"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group"><label>Masa:</label><input type="text" id="masa" required placeholder="Contoh: 10:20:00 AM"></div>
+        <div class="form-group"><label>Sesi:</label><input type="text" id="sesi" placeholder="Pagi / Petang"></div>
+      </div>
+
+      <div class="form-group"><label>Nama Guru Bertugas:</label><input type="text" id="guru" required placeholder="Nama Penuh Guru"></div>
+
+      <div class="form-row">
+        <div class="form-group"><label>Menu Makanan:</label><input type="text" id="menu" required placeholder="Contoh: NASI LEMAK"></div>
+        <div class="form-group"><label>Buah-buahan:</label><input type="text" id="buah" required placeholder="Contoh: TEMBIKAI"></div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+      <h4 style="margin: 0 0 10px 0; color: var(--secondary); font-size: 11pt;">Penilaian Kriteria & Skor (1 hingga 4)</h4>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Mengikut Menu:</label>
+          <select id="skorMenu" required>
+            <option value="4">4 - Cemerlang</option>
+            <option value="3">3 - Baik</option>
+            <option value="2">2 - Memuaskan</option>
+            <option value="1">1 - Lemah</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Kualiti Rasa:</label>
+          <select id="skorRasa" required>
+            <option value="4">4 - Cemerlang</option>
+            <option value="3">3 - Baik</option>
+            <option value="2">2 - Memuaskan</option>
+            <option value="1">1 - Lemah</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kebersihan:</label>
+          <select id="skorKebersihan" required>
+            <option value="4">4 - Cemerlang</option>
+            <option value="3">3 - Baik</option>
+            <option value="2">2 - Memuaskan</option>
+            <option value="1">1 - Lemah</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Disiplin Murid:</label>
+          <select id="skorDisiplin" required>
+            <option value="4">4 - Cemerlang</option>
+            <option value="3">3 - Baik</option>
+            <option value="2">2 - Memuaskan</option>
+            <option value="1">1 - Lemah</option>
+          </select>
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+
+      <div class="form-group"><label>Catatan dan Cadangan:</label><textarea id="catatan" rows="2" placeholder="Ulasan atau teguran jika ada..."></textarea></div>
+
+      <div class="form-row">
+        <div class="form-group"><label>Tahun:</label><input type="text" id="tahun" value="2026" required></div>
+        <div class="form-group"><label>Pautan PDF (URL):</label><input type="text" id="pdf" placeholder="https://..."></div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn btn-danger" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn btn-success" id="submitBtn">Hantar Laporan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   const sheetId = '1jkn6EwdZQRO3dodipb_RlWrMx5kjl579GIr7WeNS5M0';
-  // Menggunakan API awam Google Sheets untuk mengelakkan masalah sekatan CORS
   const jsonUrl = `https://opensheet.elk.sh/${sheetId}/Sheet1`;
+  
+  // URL Web App Google Apps Script anda yang sebenar
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbw1r7moja_-shi_a85ilMExZu7bD4HVifniV5lTmU9Paewbwz44rFehqzO4wHegkva4/exec';
+
+  function openModal() { document.getElementById('reportModal').style.display = 'flex'; }
+  function closeModal() { document.getElementById('reportModal').style.display = 'none'; }
 
   async function loadSheetData() {
     try {
@@ -102,7 +203,7 @@
       let tableRows = '';
       let totalRecords = 0;
 
-      rows.forEach((row, index) => {
+      rows.forEach((row) => {
         const tarikh = row["TARIKH"] || '-';
         const hari = row["HARI"] || '-';
         const masa = row["MASA"] || '-';
@@ -111,7 +212,6 @@
         const buah = row["BUAH-BUAHAN"] || '-';
         const tahun = row["TAHUN"] || '2023';
         
-        // Mengambil pautan PDF dari kolum terakhir atau kolum URL
         const keys = Object.keys(row);
         let pdfUrl = '';
         for (let k of keys) {
@@ -120,7 +220,6 @@
           }
         }
         const hasPdf = pdfUrl.startsWith('http');
-
         totalRecords++;
 
         tableRows += `
@@ -144,6 +243,49 @@
       document.getElementById('totalCount').textContent = totalRecords + ' Laporan';
     } catch (error) {
       document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align:center; color:red;">Ralat memuatkan data: ${error.message}</td></tr>`;
+    }
+  }
+
+  async function submitForm(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = "Menghantar...";
+    btn.disabled = true;
+
+    const formData = {
+      tarikh: document.getElementById('tarikh').value,
+      hari: document.getElementById('hari').value,
+      masa: document.getElementById('masa').value,
+      sesi: document.getElementById('sesi').value,
+      guru: document.getElementById('guru').value,
+      menu: document.getElementById('menu').value,
+      buah: document.getElementById('buah').value,
+      skorMenu: document.getElementById('skorMenu').value,
+      skorRasa: document.getElementById('skorRasa').value,
+      skorKebersihan: document.getElementById('skorKebersihan').value,
+      skorDisiplin: document.getElementById('skorDisiplin').value,
+      catatan: document.getElementById('catatan').value,
+      tahun: document.getElementById('tahun').value,
+      pdf: document.getElementById('pdf').value
+    };
+
+    try {
+      await fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      alert("Laporan penuh berjaya dihantar dan dimasukkan ke dalam Google Sheet!");
+      closeModal();
+      document.getElementById('rmtForm').reset();
+      loadSheetData();
+    } catch (error) {
+      alert("Ralat menghantar data: " + error.message);
+    } finally {
+      btn.textContent = "Hantar Laporan";
+      btn.disabled = false;
     }
   }
 
