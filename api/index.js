@@ -1,9 +1,6 @@
-const PDFDocument = require('pdfkit');
-
 export default async function handler(req, res) {
   const sheetId = '1tYcFDmReExPhcKLnCXZB-q9LH2sEPu0POx2revD549I';
   const logoUrl = 'https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8';
-  const action = req.query.action;
 
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
@@ -11,61 +8,6 @@ export default async function handler(req, res) {
     const csvText = await response.text();
     const lines = csvText.split('\n');
 
-    // Tindakan untuk menjana dan memuat turun PDF Keseluruhan
-    if (action === 'pdf') {
-      const doc = new PDFDocument({ margin: 30, size: 'A4', layout: 'landscape' });
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=Laporan_Keseluruhan_RMT.pdf');
-      doc.pipe(res);
-
-      doc.fontSize(14).text('SEKOLAH KEBANGSAAN SIMPANG RENGAM, JOHOR', { align: 'center' });
-      doc.fontSize(11).text('LAPORAN KESELURUHAN RANCANGAN MAKANAN TAMBAHAN (RMT)', { align: 'center' });
-      doc.moveDown(1.5);
-
-      doc.fontSize(9);
-      let y = doc.y;
-      doc.text('Bil', 30, y, { width: 30 });
-      doc.text('Tahun', 65, y, { width: 45 });
-      doc.text('Sesi', 115, y, { width: 45 });
-      doc.text('Tarikh', 165, y, { width: 60 });
-      doc.text('Masa', 230, y, { width: 50 });
-      doc.text('Guru Bertugas', 285, y, { width: 130 });
-      doc.text('Menu & Buah', 420, y, { width: 130 });
-      doc.text('Skor [Menu/Rasa/Bersih/Disiplin]', 555, y, { width: 150 });
-      doc.text('Catatan', 710, y, { width: 120 });
-      doc.moveDown(1);
-
-      let count = 0;
-      for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-        const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : '-';
-
-        count++;
-        let rowY = doc.y;
-        if (rowY > 520) {
-          doc.addPage();
-          rowY = doc.y;
-        }
-
-        doc.text(count.toString(), 30, rowY, { width: 30 });
-        doc.text(clean(cols[0]), 65, rowY, { width: 45 });
-        doc.text(clean(cols[1]), 115, rowY, { width: 45 });
-        doc.text(clean(cols[2]), 165, rowY, { width: 60 });
-        doc.text(clean(cols[3]), 230, rowY, { width: 50 });
-        doc.text(clean(cols[4]), 285, rowY, { width: 130 });
-        doc.text(`${clean(cols[5])} (${clean(cols[6])})`, 420, rowY, { width: 130 });
-        doc.text('4 / 4 / 4 / 4', 555, rowY, { width: 150 });
-        doc.text(clean(cols[7]) || 'Memuaskan', 710, rowY, { width: 120 });
-        doc.moveDown(0.8);
-      }
-
-      doc.end();
-      return;
-    }
-
-    // Paparan Dashboard Web Vercel
     let tableRows = '';
     let totalRecords = 0;
 
@@ -154,6 +96,11 @@ export default async function handler(req, res) {
               .stat-card { background: #f1f5f9; padding: 15px 20px; border-radius: 10px; border-left: 4px solid var(--primary); min-width: 200px; }
               .stat-card h4 { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; }
               .stat-card p { margin: 5px 0 0; font-size: 20px; font-weight: 700; color: var(--primary); }
+              @media print {
+                body { background: white; padding: 0; }
+                .container { box-shadow: none; padding: 0; max-width: 100%; }
+                .actions-bar, .stats-bar, .btn-pdf, th:last-child, td:last-child { display: none !important; }
+              }
           </style>
       </head>
       <body>
@@ -167,7 +114,7 @@ export default async function handler(req, res) {
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v5.0 Aktif</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v6.0 Aktif</span>
           </div>
         </div>
 
@@ -178,7 +125,7 @@ export default async function handler(req, res) {
           </div>
           <div class="stat-card" style="border-left-color: var(--success);">
             <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online (Vercel + Google Sheet)</p>
+            <p style="color: var(--success);">Online (Vercel Ready)</p>
           </div>
         </div>
 
@@ -187,9 +134,9 @@ export default async function handler(req, res) {
             <a class="btn" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">
               📁 Buka Google Sheet Asal
             </a>
-            <a class="btn btn-danger" href="/api?action=pdf" target="_blank">
-              📥 Muat Turun Laporan Penuh (PDF)
-            </a>
+            <button class="btn btn-danger" onclick="window.print()">
+              🖨️ Cetak / Simpan Laporan Penuh (PDF)
+            </button>
           </div>
           <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh, sesi..." onkeyup="searchTable()">
         </div>
