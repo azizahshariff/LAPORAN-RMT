@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     const response = await fetch(csvUrl);
     
     if (!response.ok) {
-      throw new Error("Gagal membaca Google Sheet. Sila pastikan tetapan 'Anyone with the link' telah diaktifkan.");
+      throw new Error("Gagal membaca Google Sheet. Sila pastikan pautan dikongsi sebagai 'Anyone with the link'.");
     }
 
     const csvText = await response.text();
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v9.0 Aktif</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v10.0</span>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export default async function handler(req, res) {
           </div>
           <div class="stat-card" style="border-left-color: var(--success);">
             <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online & Stabil</p>
+            <p style="color: var(--success);">Online & Sempurna</p>
           </div>
         </div>
 
