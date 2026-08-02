@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const csvText = await response.text();
     const lines = csvText.split('\n');
 
-    // Jika pengguna klik butang muat turun PDF
+    // Tindakan untuk menjana dan memuat turun PDF Keseluruhan
     if (action === 'pdf') {
       const doc = new PDFDocument({ margin: 30, size: 'A4', layout: 'landscape' });
       res.setHeader('Content-Type', 'application/pdf');
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       doc.text('Tahun', 65, y, { width: 45 });
       doc.text('Sesi', 115, y, { width: 45 });
       doc.text('Tarikh', 165, y, { width: 60 });
-      doc.text('Hari', 230, y, { width: 50 });
+      doc.text('Masa', 230, y, { width: 50 });
       doc.text('Guru Bertugas', 285, y, { width: 130 });
       doc.text('Menu & Buah', 420, y, { width: 130 });
       doc.text('Skor [Menu/Rasa/Bersih/Disiplin]', 555, y, { width: 150 });
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Paparan Dashboard Vercel
+    // Paparan Dashboard Web Vercel
     let tableRows = '';
     let totalRecords = 0;
 
@@ -167,7 +167,7 @@ export default async function handler(req, res) {
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v4.0 (Auto-PDF)</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v5.0 Aktif</span>
           </div>
         </div>
 
@@ -178,7 +178,7 @@ export default async function handler(req, res) {
           </div>
           <div class="stat-card" style="border-left-color: var(--success);">
             <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online (Vercel Node.js)</p>
+            <p style="color: var(--success);">Online (Vercel + Google Sheet)</p>
           </div>
         </div>
 
@@ -188,7 +188,7 @@ export default async function handler(req, res) {
               📁 Buka Google Sheet Asal
             </a>
             <a class="btn btn-danger" href="/api?action=pdf" target="_blank">
-              📥 Jana & Muat Turun Laporan Penuh (PDF)
+              📥 Muat Turun Laporan Penuh (PDF)
             </a>
           </div>
           <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh, sesi..." onkeyup="searchTable()">
