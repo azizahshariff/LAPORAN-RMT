@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   const sheetId = '1tYcFDmReExPhcKLnCXZB-q9LH2sEPu0POx2revD549I';
   const logoUrl = 'https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8';
 
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v6.0 Aktif</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v7.0 Stabil</span>
           </div>
         </div>
 
@@ -125,7 +125,7 @@ export default async function handler(req, res) {
           </div>
           <div class="stat-card" style="border-left-color: var(--success);">
             <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online (Vercel Ready)</p>
+            <p style="color: var(--success);">Online & Aktif</p>
           </div>
         </div>
 
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
               📁 Buka Google Sheet Asal
             </a>
             <button class="btn btn-danger" onclick="window.print()">
-              🖨️ Cetak / Simpan Laporan Penuh (PDF)
+              🖨️ Cetak / Muat Turun Laporan Penuh (PDF)
             </button>
           </div>
           <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh, sesi..." onkeyup="searchTable()">
@@ -182,4 +182,4 @@ export default async function handler(req, res) {
   } catch (error) {
     res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Pelayan Vercel:</h3><pre>${error.message}</pre>`);
   }
-}
+};
