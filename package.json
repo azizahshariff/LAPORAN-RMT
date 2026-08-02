@@ -1,11 +1,6 @@
 {
   "name": "laporan-rmt-sk-simpang-rengam",
   "version": "1.0.0",
-  "description": "Dashboard dan Penjana PDF Laporan RMT SK Simpang Rengam",
-  "main": "api/index.js",
-  "dependencies": {
-    "pdfkit": "^0.13.0"
-  },
   "engines": {
     "node": "18.x"
   }
