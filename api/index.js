@@ -5,11 +5,6 @@ export default async function handler(req, res) {
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
     const response = await fetch(csvUrl);
-    
-    if (!response.ok) {
-      throw new Error("Gagal membaca Google Sheet. Sila pastikan pautan dikongsi sebagai 'Anyone with the link'.");
-    }
-
     const csvText = await response.text();
     const lines = csvText.split('\n');
 
@@ -82,44 +77,35 @@ export default async function handler(req, res) {
               .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
               .btn { background: var(--primary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 10pt; border: none; cursor: pointer; transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; gap: 8px; }
               .btn:hover { background: #1e40af; transform: translateY(-1px); }
-              .btn-success { background: var(--success); }
-              .btn-success:hover { background: #059669; }
               .btn-danger { background: var(--danger); }
               .btn-danger:hover { background: #dc2626; }
-              .search-box { padding: 10px 15px; width: 320px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
-              .search-box:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+              .search-box { padding: 10px 15px; width: 320px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
               .table-container { border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; background: white; }
               table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
               th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 9.5pt; }
-              th { background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+              th { background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-weight: 700; }
               tr:hover { background-color: #f8fafc; }
               .badge-tahun { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 9pt; }
               .badge-sesi { background: #fef3c7; color: #b45309; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 9pt; }
-              .btn-pdf { background: var(--secondary); color: white; padding: 6px 12px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 9pt; display: inline-block; transition: background 0.2s; }
-              .btn-pdf:hover { background: #2563eb; }
+              .btn-pdf { background: var(--secondary); color: white; padding: 6px 12px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 9pt; display: inline-block; }
               .stats-bar { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
               .stat-card { background: #f1f5f9; padding: 15px 20px; border-radius: 10px; border-left: 4px solid var(--primary); min-width: 200px; }
               .stat-card h4 { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; }
               .stat-card p { margin: 5px 0 0; font-size: 20px; font-weight: 700; color: var(--primary); }
-              @media print {
-                body { background: white; padding: 0; }
-                .container { box-shadow: none; padding: 0; max-width: 100%; }
-                .actions-bar, .stats-bar, .btn-pdf, th:last-child, td:last-child { display: none !important; }
-              }
           </style>
       </head>
       <body>
       <div class="container">
         <div class="header">
           <div class="school-info">
-            <img src="${logoUrl}" alt="Logo SK Simpang Rengam" class="school-logo" onerror="this.style.display='none'">
+            <img src="${logoUrl}" alt="Logo" class="school-logo" onerror="this.style.display='none'">
             <div class="title-group">
               <h2>SEKOLAH KEBANGSAAN SIMPANG RENGAM, JOHOR</h2>
               <h1>DASHBOARD RASMI LAPORAN RMT (2023 - 2025)</h1>
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v10.0</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem Aktif</span>
           </div>
         </div>
 
@@ -128,36 +114,22 @@ export default async function handler(req, res) {
             <h4>Jumlah Rekod</h4>
             <p>${totalRecords} Laporan</p>
           </div>
-          <div class="stat-card" style="border-left-color: var(--success);">
-            <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online & Sempurna</p>
-          </div>
         </div>
 
         <div class="actions-bar">
           <div class="btn-group">
-            <a class="btn" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">
-              📁 Buka Google Sheet Asal
-            </a>
-            <button class="btn btn-danger" onclick="window.print()">
-              🖨️ Cetak / Muat Turun Laporan Penuh (PDF)
-            </button>
+            <a class="btn" href="https://docs.google.com/spreadsheets/d/${sheetId}/edit" target="_blank">📁 Buka Google Sheet Asal</a>
+            <button class="btn btn-danger" onclick="window.print()">🖨️ Cetak / Muat Turun Penuh</button>
           </div>
-          <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh, sesi..." onkeyup="searchTable()">
+          <input type="text" id="searchInput" class="search-box" placeholder="Cari guru, menu, tarikh..." onkeyup="searchTable()">
         </div>
 
         <div class="table-container">
           <table id="reportTable">
             <thead>
               <tr>
-                <th>Bil</th>
-                <th>Tahun</th>
-                <th>Sesi</th>
-                <th>Tarikh</th>
-                <th>Masa</th>
-                <th>Guru Bertugas</th>
-                <th>Menu Makanan</th>
-                <th>Buah-buahan</th>
+                <th>Bil</th><th>Tahun</th><th>Sesi</th><th>Tarikh</th><th>Masa</th>
+                <th>Guru Bertugas</th><th>Menu Makanan</th><th>Buah-buahan</th>
                 <th style="text-align:center;">Pautan PDF</th>
               </tr>
             </thead>
@@ -167,14 +139,12 @@ export default async function handler(req, res) {
           </table>
         </div>
       </div>
-
       <script>
         function searchTable() {
           let input = document.getElementById("searchInput").value.toLowerCase();
           let rows = document.getElementById("tableBody").getElementsByTagName("tr");
           for (let i = 0; i < rows.length; i++) {
-            let text = rows[i].textContent.toLowerCase();
-            rows[i].style.display = text.includes(input) ? "" : "none";
+            rows[i].style.display = rows[i].textContent.toLowerCase().includes(input) ? "" : "none";
           }
         }
       </script>
@@ -185,6 +155,6 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(html);
   } catch (error) {
-    res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Pelayan Vercel:</h3><pre>${error.message}</pre>`);
+    res.status(500).send(`<h3>Ralat:</h3><pre>${error.message}</pre>`);
   }
 }
