@@ -1,10 +1,15 @@
-module.exports = async (req, res) => {
-  const sheetId = '1tYcFDmReExPhcKLnCXZB-q9LH2sEPu0POx2revD549I';
+export default async function handler(req, res) {
+  const sheetId = '1jkn6EwdZQRO3dodipb_RlWrMx5kjl579GIr7WeNS5M0';
   const logoUrl = 'https://drive.google.com/uc?export=view&id=1AQkIuFJ3g4QRrSuJVsfzaiy5TbtzXUF8';
 
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
     const response = await fetch(csvUrl);
+    
+    if (!response.ok) {
+      throw new Error("Gagal membaca Google Sheet. Sila pastikan tetapan 'Anyone with the link' telah diaktifkan.");
+    }
+
     const csvText = await response.text();
     const lines = csvText.split('\n');
 
@@ -114,7 +119,7 @@ module.exports = async (req, res) => {
             </div>
           </div>
           <div>
-            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v7.0 Stabil</span>
+            <span class="badge-tahun" style="font-size: 11pt; padding: 8px 14px;">Sistem v9.0 Aktif</span>
           </div>
         </div>
 
@@ -125,7 +130,7 @@ module.exports = async (req, res) => {
           </div>
           <div class="stat-card" style="border-left-color: var(--success);">
             <h4>Status Pelayan</h4>
-            <p style="color: var(--success);">Online & Aktif</p>
+            <p style="color: var(--success);">Online & Stabil</p>
           </div>
         </div>
 
@@ -182,4 +187,4 @@ module.exports = async (req, res) => {
   } catch (error) {
     res.status(500).send(`<h3 style="color:red; font-family:Arial;">Ralat Pelayan Vercel:</h3><pre>${error.message}</pre>`);
   }
-};
+}
